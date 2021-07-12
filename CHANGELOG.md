@@ -25,6 +25,8 @@ release.
 
 ### SDK Configuration
 
+- Change default value for OTEL_EXPORTER_JAEGER_AGENT_PORT to 6831. (#1812)
+
 ## v1.5.0 (2021-07-08)
 
 ### Context
