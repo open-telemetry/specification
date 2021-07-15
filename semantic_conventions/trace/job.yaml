@@ -1,0 +1,158 @@
+groups:
+    - id: job
+      prefix: job
+      brief: >
+          This document defines the attributes used in
+          batch job queuing and processing systems.
+      attributes:
+        - id: system
+          required: always
+          brief: >
+            A string identifying the job processing system.
+          type:
+            allow_custom_values: true
+            members:
+            - id: active_job
+              value: 'active_job'
+              brief: 'Active Job'
+            - id: airflow
+              value: 'airflow'
+              brief: 'Apache Airflow'
+            - id: celery
+              value: 'celery'
+              brief: 'Oracle Database'
+            - id: delayed_job
+              value: 'delayed_job'
+              brief: 'Delayed Job'
+            - id: exq
+              value: 'exq'
+              brief: 'Exq'
+            - id: faktory
+              value: 'faktory'
+              brief: 'Faktory'
+            - id: hangfire
+              value: 'hangfire'
+              brief: 'Hangfire'
+            - id: minion
+              value: 'minion'
+              brief: 'Minion'
+            - id: oban
+              value: 'oban'
+              brief: 'Oban'
+            - id: rake
+              value: 'rake'
+              brief: 'Rake'
+            - id: resque
+              value: 'resque'
+              brief: 'Resque'
+            - id: sidekiq
+              value: 'sidekiq'
+              brief: 'Sidekiq'
+            - id: spring_batch
+              value: 'spring_batch'
+              brief: 'Spring Batch'
+            - id: sque
+              value: 'sque'
+              brief: 'Sque'
+            - id: toniq
+              value: 'toniq'
+              brief: 'Toniq'
+            - id: workerholic
+              value: 'workerholic'
+              brief: 'Workerholic'
+        - id: name
+          type: string
+          required: always
+          brief: >
+            The type or class name of the job.
+          examples: ['SignupMailJob', 'ChargePaymentJob']
+        - id: id
+          type: string
+          required: always
+          brief: >
+            An identifier for the job, represented as a string.
+            This is typically the database ID of the persisted job object,
+            which is picked up and worked by a worker process.
+            Alternatively, it might be an ID of a job run, for example the
+            job name plus the a timestamp of the run.
+          examples: 'b18fc2c2f887f61452a7c7c7c7048572'
+        - id: display_name
+          type: string
+          brief: >
+            A value assigned as a human-readable label for the job.
+          examples: 'charge-payment-124293'
+        - id: trigger
+          type:
+            allow_custom_values: false
+            members:
+              - id: queue
+                value: 'queue'
+                brief: 'The job is enqueued for invocation, usually in a first-in-first-out manner'
+              - id: timer
+                value: 'timer'
+                brief: 'The job is set to run by a regular timer'
+              - id: other
+                value: 'other'
+                brief: 'If none of the others apply'
+          brief: >
+            Type of the trigger on which the job is performed.
+        - id: queue_name
+          type: string
+          brief: >
+            The processing queue to which the job belongs.
+          examples: ['mailers', 'payments']
+        - id: priority
+          type: int
+          brief: >
+            The priority value of the job, as defined by the job processing system. Can be positive or negative.
+          examples: -5
+        - id: attempt
+          type: int
+          brief: >
+            The zero-based number previous run attempts which have occurred prior to the current run.
+          examples: 0
+        - id: max_attempts
+          type: int
+          brief: >
+            The maximum number of successive failed run attempts after which the job will be abandoned.
+          examples: 3
+        - id: scheduled_run_time
+          type: string
+          brief: >
+            A string containing the time when the job was scheduled to run, specified in
+            [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html)
+            format expressed in [UTC](https://www.w3.org/TR/NOTE-datetime).
+            For job attempts which are being retried, this should reflect when the current
+            attempt was scheduled (e.g. using a back-off timer.)
+          examples: "2021-03-23T13:47:06Z"
+        - ref: net.peer.name
+          note: >
+            This should be the IP/hostname of the process (or other network-level peer) used to enqueue or perform job.
+          required:
+            conditional: If available.
+        - ref: net.peer.ip
+          tag: connection-level
+          required:
+            conditional: If available.
+      constraints:
+        - include: network
+
+    - id: job.producer
+      prefix: messaging
+      extends: messaging
+      span_kind: producer
+      brief: >
+        Semantic convention for producers of jobs.
+
+    - id: job.consumer
+      prefix: messaging
+      extends: messaging
+      span_kind: consumer
+      brief: >
+        Semantic convention for a consumer of jobs
+      attributes:
+        - id: pool
+          type: string
+          brief: >
+            The name or identifier of the worker pool used to run the job.
+          examples: ['mailers', 'payments']
